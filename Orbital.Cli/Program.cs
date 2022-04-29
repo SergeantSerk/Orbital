@@ -134,6 +134,7 @@ namespace Orbital.Cli
                     PrintBodies(bodies);
                 }
 
+                // see https://en.wikipedia.org/wiki/N-body_simulation#Example_Simulations (accessed on 29/04/2022)
                 foreach (var bodyA in bodies)
                 {
                     Vector3 a_g = Vector3.Zero;
