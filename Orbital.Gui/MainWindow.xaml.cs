@@ -115,11 +115,9 @@ namespace Orbital.Gui
                 .Min();
 
             Running = true;
-            bool infinite = true;
-            double T_0 = 0;
-            double T = T_0;
-            double T_End = 86400 * 365 * 10; // approximately a decade in seconds
-            var universe = new Universe(604800);
+            var universe = new Universe(86400);
+            var simulation = new Simulation(0, 86400 * 365 * 10);
+            simulation.Infinite = true;
 
             UniverseThread = new Thread(() =>
             {
@@ -221,8 +219,8 @@ namespace Orbital.Gui
                         body.Position += body.Velocity * universe.UpdateDtVector;
                     }
 
-                    T += universe.UpdateDt;
-                } while (Running && (T < T_End || infinite));
+                    simulation.T += universe.UpdateDt;
+                } while (Running && (simulation.T < simulation.T_End || simulation.Infinite));
             });
             UniverseThread.Start();
         }
