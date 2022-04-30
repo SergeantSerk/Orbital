@@ -92,11 +92,10 @@ namespace Orbital.Cli
                 .Min();
 
             bool infinite = false;
-            double t_0 = 0;
-            double t = t_0;
-            double t_end = 86400 * 365 * 10; // approximately a decade in seconds
-            double updateDt = 60*60*24; // simulation step (seconds)
-            var dtVector = new Vector3(updateDt);
+            double T_0 = 0;
+            double T = T_0;
+            double T_End = 86400 * 365 * 10; // approximately a decade in seconds
+            var universe = new Universe(86400);
 
             string directoryName = "renders";
             string currentDirectory = Directory.GetCurrentDirectory();
@@ -144,10 +143,10 @@ namespace Orbital.Cli
 
                 bitmap.Save(Path.Combine(currentDirectory, directoryName, $"{i++}.png"), ImageFormat.Png);
 
-                if (t % 1000 == 0)
+                if (T % 1000 == 0)
                 {
                     // Reduce console spam
-                    Console.WriteLine($"Time: {t}" + Environment.NewLine);
+                    Console.WriteLine($"Time: {T}" + Environment.NewLine);
                     PrintBodies(bodies);
                 }
 
@@ -175,19 +174,19 @@ namespace Orbital.Cli
                         }
                     }
 
-                    bodyA.Velocity += a_g * dtVector;
+                    bodyA.Velocity += a_g * universe.UpdateDtVector;
                 }
 
                 foreach (var body in bodies)
                 {
-                    body.Position += body.Velocity * dtVector;
+                    body.Position += body.Velocity * universe.UpdateDtVector;
                 }
 
-                t += updateDt;
+                T += universe.UpdateDt;
 
                 //Thread.Sleep(100);
                 Console.SetCursorPosition(0, 0);
-            } while (t < t_end || infinite);
+            } while (T < T_End || infinite);
         }
 
         private static void PrintBodies(IEnumerable<Body> bodies)

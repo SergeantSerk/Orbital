@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32421.90
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orbital", "Orbital\Orbital.csproj", "{61F6FDC3-FFD3-4A89-BC9E-9DEA74DC9235}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Orbital", "Orbital\Orbital.csproj", "{61F6FDC3-FFD3-4A89-BC9E-9DEA74DC9235}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orbital.Cli", "Orbital.Cli\Orbital.Cli.csproj", "{B07BA159-460A-4EA7-8BC4-EA4D661C5F14}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Orbital.Cli", "Orbital.Cli\Orbital.Cli.csproj", "{B07BA159-460A-4EA7-8BC4-EA4D661C5F14}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orbital.Gui", "Orbital.Gui\Orbital.Gui.csproj", "{1B27B2EF-4F84-4B63-9A0C-CCF97B489F23}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{B07BA159-460A-4EA7-8BC4-EA4D661C5F14}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B07BA159-460A-4EA7-8BC4-EA4D661C5F14}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B07BA159-460A-4EA7-8BC4-EA4D661C5F14}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1B27B2EF-4F84-4B63-9A0C-CCF97B489F23}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B27B2EF-4F84-4B63-9A0C-CCF97B489F23}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B27B2EF-4F84-4B63-9A0C-CCF97B489F23}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B27B2EF-4F84-4B63-9A0C-CCF97B489F23}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
