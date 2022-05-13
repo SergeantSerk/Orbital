@@ -1,9 +1,11 @@
-﻿using System;
+﻿using Orbital.Render;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Orbital.Cli
 {
@@ -77,23 +79,15 @@ namespace Orbital.Cli
                     radius: 1188.0e3)
             };
 
-            double tickResolution = 86400 * 7;  // 1 day
+            double tickResolution = 86400 * 7;  // 7 days
             var universe = new Universe(bodies, tickResolution);
             var simulation = new Simulation(universe);
+            var renderer = new BitmapRenderer(simulation.Universe);
 
-            // Maximum radius with padding
+            int width = 1000;
+            int height = width;
+            double offsetX = 0.0, offsetY = 0.0;
             double zoom = 1;
-            double viewport = bodies
-                .Select(_ => _.Position.Magnitude)
-                .Max() * zoom;
-            // Add extra x% of padding space
-            viewport += viewport * 0.01;
-            var viewportVector = new Vector3(viewport);
-
-            double minEllipseRadius = 1f;
-            double minBodyRadius = bodies
-                .Select(_ => _.Radius)
-                .Min();
 
             string directoryName = "renders";
             string currentDirectory = Directory.GetCurrentDirectory();
@@ -107,50 +101,20 @@ namespace Orbital.Cli
             double i = 0;
             do
             {
-                int width = 1000;
-                int height = width;
-                using var bitmap = new Bitmap(width, height);
-                using Graphics graphics = Graphics.FromImage(bitmap);
-                graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-                graphics.Clear(Color.Black);
-
-                foreach (var body in bodies)
-                {
-                    // Viewport relative ratio
-                    Vector3 bodyViewportVector = body.Position / viewportVector;
-
-                    // Scale
-                    bodyViewportVector.X *= width / 2;
-                    bodyViewportVector.Y *= height / 2;
-
-                    // Offset
-                    bodyViewportVector.X += width / 2;
-                    bodyViewportVector.Y += height / 2;
-
-                    // Centering
-                    float ellipseDiameter = (float)(body.Radius * minEllipseRadius / minBodyRadius);
-                    float renderX = (float)bodyViewportVector.X - (ellipseDiameter / 2);
-                    float renderY = (float)bodyViewportVector.Y - (ellipseDiameter / 2);
-
-                    // Colouring (if any) TO-DO
-                    Brush brush = new SolidBrush(body.Metadata.Color);
-
-                    graphics.FillEllipse(brush, renderX, renderY, ellipseDiameter, ellipseDiameter);
-                }
-
+                using var bitmap = renderer.Render(width, height, offsetX, offsetY, zoom);
                 bitmap.Save(Path.Combine(currentDirectory, directoryName, $"{i++}.png"), ImageFormat.Png);
 
-                if (universe.T % 1000 == 0)
+                if (simulation.Universe.T % 1000 == 0)
                 {
                     // Reduce console spam
-                    Console.WriteLine($"Time: {universe.T}" + Environment.NewLine);
+                    Console.WriteLine($"Time: {simulation.Universe.T}" + Environment.NewLine);
                     PrintBodies(bodies);
                 }
 
-                universe.Tick();
+                simulation.Universe.Tick();
 
                 Console.SetCursorPosition(0, 0);
-            } while (universe.T < simulation.TEnd || simulation.Infinite);
+            } while (simulation.Universe.T < simulation.TEnd || simulation.Infinite);
         }
 
         private static void PrintBodies(IEnumerable<Body> bodies)

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Orbital.Render;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -19,7 +20,7 @@ namespace Orbital.Gui
         private IEnumerable<Body>? Bodies { get; set; }
 
         private Thread UniverseThread { get; set; }
-        private bool Running { get; set; }
+        private Simulation Simulation { get; set; }
 
         public MainWindow()
         {
@@ -99,25 +100,14 @@ namespace Orbital.Gui
             };
 
             // Maximum radius with padding
-            double zoom = 0.25;
-            double viewport = Bodies
-                .Select(_ => _.Position.Magnitude)
-                .Max() * zoom;
-            // Add extra x% of padding space
-            viewport += viewport * 0.01;
-            var viewportVector = new Vector3(viewport);
+            double zoom = 20.0;
+            double offsetX = 0.0;
+            double offsetY = 0.0;
 
-            float scale = 0.1f;
-
-            double minEllipseRadius = 1f;
-            double minBodyRadius = Bodies
-                .Select(_ => _.Radius)
-                .Min();
-
-            Running = true;
-            var universe = new Universe(Bodies, 86400);
-            var simulation = new Simulation(0, 86400 * 365 * 10);
-            simulation.Infinite = true;
+            double tickResolution = 60 * 60 * 24;
+            var universe = new Universe(Bodies, tickResolution);
+            Simulation = new Simulation(universe);
+            var renderer = new BitmapRenderer(Simulation.Universe);
 
             UniverseThread = new Thread(() =>
             {
@@ -136,7 +126,7 @@ namespace Orbital.Gui
                     }
                     catch (TaskCanceledException)
                     {
-                        Running = false;
+                        Simulation.Simulating = false;
                         break;
                     }
 
@@ -145,35 +135,7 @@ namespace Orbital.Gui
                         throw new ArgumentException();
                     }
 
-                    using var bitmap = new Bitmap(width, height);
-                    using Graphics graphics = Graphics.FromImage(bitmap);
-                    graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-                    graphics.Clear(Color.Black);
-
-                    foreach (var body in Bodies)
-                    {
-                        // Viewport relative ratio
-                        Vector3 bodyViewportVector = body.Position / viewportVector;
-
-                        // Scale
-                        bodyViewportVector.X *= width / 2;
-                        bodyViewportVector.Y *= height / 2;
-
-                        // Offset
-                        bodyViewportVector.X += width / 2;
-                        bodyViewportVector.Y += height / 2;
-
-                        // Centering
-                        float ellipseDiameter = (float)(body.Radius * minEllipseRadius / minBodyRadius) * scale;
-                        float renderX = (float)bodyViewportVector.X - (ellipseDiameter / 2);
-                        float renderY = (float)bodyViewportVector.Y - (ellipseDiameter / 2);
-
-                        // Colouring (if any) TO-DO
-                        Brush brush = new SolidBrush(body.Metadata.Color);
-
-                        graphics.FillEllipse(brush, renderX, renderY, ellipseDiameter, ellipseDiameter);
-                    }
-
+                    using var bitmap = renderer.Render(width, height, offsetX, offsetY, zoom);
                     try
                     {
                         Dispatcher.Invoke(() =>
@@ -183,51 +145,19 @@ namespace Orbital.Gui
                     }
                     catch (TaskCanceledException)
                     {
-                        Running = false;
+                        Simulation.Simulating = false;
                         break;
                     }
 
-                    // see https://en.wikipedia.org/wiki/N-body_simulation#Example_Simulations (accessed on 29/04/2022)
-                    foreach (var bodyA in Bodies)
-                    {
-                        Vector3 a_g = Vector3.Zero;
-
-                        foreach (var bodyB in Bodies)
-                        {
-                            if (bodyB != bodyA)
-                            {
-                                Vector3 radiusVector = bodyA.Position - bodyB.Position;
-                                double radiusVectorMag = radiusVector.Magnitude;
-
-                                double acceleration = -Universe.BIG_G * bodyB.Mass / Math.Pow(radiusVectorMag, 2);
-                                var accelerationVector = new Vector3(acceleration);
-
-                                var radiusUnitVector = new Vector3(
-                                    x: radiusVector.X / radiusVectorMag,
-                                    y: radiusVector.Y / radiusVectorMag,
-                                    z: radiusVector.Z / radiusVectorMag);
-
-                                a_g += radiusUnitVector * accelerationVector;
-                            }
-                        }
-
-                        bodyA.Velocity += a_g * universe.TickResolutionVector;
-                    }
-
-                    foreach (var body in Bodies)
-                    {
-                        body.Position += body.Velocity * universe.TickResolutionVector;
-                    }
-
-                    universe.T += universe.TickResolution;
-                } while (Running && (universe.T < simulation.TEnd || simulation.Infinite));
+                    Simulation.Universe.Tick();
+                } while (Simulation.Simulating && (universe.T < Simulation.TEnd || Simulation.Infinite));
             });
             UniverseThread.Start();
         }
 
         private void Window_Unloaded(object sender, RoutedEventArgs e)
         {
-            Running = false;
+            Simulation.Simulating = false;
             UniverseThread.Join();
         }
 
