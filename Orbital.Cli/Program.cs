@@ -77,6 +77,10 @@ namespace Orbital.Cli
                     radius: 1188.0e3)
             };
 
+            double tickResolution = 86400 * 7;  // 1 day
+            var universe = new Universe(bodies, tickResolution);
+            var simulation = new Simulation(universe);
+
             // Maximum radius with padding
             double zoom = 1;
             double viewport = bodies
@@ -91,19 +95,12 @@ namespace Orbital.Cli
                 .Select(_ => _.Radius)
                 .Min();
 
-            bool infinite = false;
-            double T_0 = 0;
-            double T = T_0;
-            double T_End = 86400 * 365 * 10; // approximately a decade in seconds
-            var universe = new Universe(86400);
-
             string directoryName = "renders";
             string currentDirectory = Directory.GetCurrentDirectory();
 
             if (Directory.Exists(Path.Combine(currentDirectory, directoryName)))
             {
                 Directory.Delete(directoryName, true);
-
             }
             Directory.CreateDirectory(directoryName);
 
@@ -143,50 +140,17 @@ namespace Orbital.Cli
 
                 bitmap.Save(Path.Combine(currentDirectory, directoryName, $"{i++}.png"), ImageFormat.Png);
 
-                if (T % 1000 == 0)
+                if (universe.T % 1000 == 0)
                 {
                     // Reduce console spam
-                    Console.WriteLine($"Time: {T}" + Environment.NewLine);
+                    Console.WriteLine($"Time: {universe.T}" + Environment.NewLine);
                     PrintBodies(bodies);
                 }
 
-                // see https://en.wikipedia.org/wiki/N-body_simulation#Example_Simulations (accessed on 29/04/2022)
-                foreach (var bodyA in bodies)
-                {
-                    Vector3 a_g = Vector3.Zero;
+                universe.Tick();
 
-                    foreach (var bodyB in bodies)
-                    {
-                        if (bodyB != bodyA)
-                        {
-                            Vector3 radiusVector = bodyA.Position - bodyB.Position;
-                            double radiusVectorMag = radiusVector.Magnitude;
-
-                            double acceleration = -Universe.BIG_G * bodyB.Mass / Math.Pow(radiusVectorMag, 2);
-                            var accelerationVector = new Vector3(acceleration);
-
-                            var radiusUnitVector = new Vector3(
-                                x: radiusVector.X / radiusVectorMag,
-                                y: radiusVector.Y / radiusVectorMag,
-                                z: radiusVector.Z / radiusVectorMag);
-
-                            a_g += radiusUnitVector * accelerationVector;
-                        }
-                    }
-
-                    bodyA.Velocity += a_g * universe.UpdateDtVector;
-                }
-
-                foreach (var body in bodies)
-                {
-                    body.Position += body.Velocity * universe.UpdateDtVector;
-                }
-
-                T += universe.UpdateDt;
-
-                //Thread.Sleep(100);
                 Console.SetCursorPosition(0, 0);
-            } while (T < T_End || infinite);
+            } while (universe.T < simulation.TEnd || simulation.Infinite);
         }
 
         private static void PrintBodies(IEnumerable<Body> bodies)

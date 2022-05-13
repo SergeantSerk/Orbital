@@ -115,7 +115,7 @@ namespace Orbital.Gui
                 .Min();
 
             Running = true;
-            var universe = new Universe(86400);
+            var universe = new Universe(Bodies, 86400);
             var simulation = new Simulation(0, 86400 * 365 * 10);
             simulation.Infinite = true;
 
@@ -211,16 +211,16 @@ namespace Orbital.Gui
                             }
                         }
 
-                        bodyA.Velocity += a_g * universe.UpdateDtVector;
+                        bodyA.Velocity += a_g * universe.TickResolutionVector;
                     }
 
                     foreach (var body in Bodies)
                     {
-                        body.Position += body.Velocity * universe.UpdateDtVector;
+                        body.Position += body.Velocity * universe.TickResolutionVector;
                     }
 
-                    simulation.T += universe.UpdateDt;
-                } while (Running && (simulation.T < simulation.T_End || simulation.Infinite));
+                    universe.T += universe.TickResolution;
+                } while (Running && (universe.T < simulation.TEnd || simulation.Infinite));
             });
             UniverseThread.Start();
         }

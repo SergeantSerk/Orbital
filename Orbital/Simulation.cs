@@ -2,9 +2,10 @@
 {
     public class Simulation
     {
-        public double T_0 { get; }
-        public double T { get; set; }
-        public double T_End { get; set; }
+        public Universe Universe { get; }
+
+        public double TStart { get; }
+        public double TEnd { get; set; }
 
         public bool Infinite { get; set; }
         public bool Running { get; set; }
@@ -12,20 +13,20 @@
         /// <summary>
         /// Infinite simulation with no end.
         /// </summary>
-        public Simulation()
+        public Simulation(Universe universe)
         {
+            Universe = universe;
             Infinite = true;
             Running = true;
         }
 
-        public Simulation(double t_0, double t_end)
+        public Simulation(Universe universe, double tStart, double tEnd) : this(universe)
         {
             Infinite = false;
             Running = true;
 
-            T_0 = t_0;
-            T = t_0;
-            T_End = t_end;
+            TStart = tStart;
+            TEnd = tEnd;
         }
     }
 }
