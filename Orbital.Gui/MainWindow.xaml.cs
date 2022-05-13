@@ -99,12 +99,7 @@ namespace Orbital.Gui
                     radius: 1188.0e3)
             };
 
-            // Maximum radius with padding
-            double zoom = 20.0;
-            double offsetX = 0.0;
-            double offsetY = 0.0;
-
-            double tickResolution = 60 * 60 * 24;
+            double tickResolution = 60 * 60 * 4;
             var universe = new Universe(Bodies, tickResolution);
             Simulation = new Simulation(universe);
             var renderer = new BitmapRenderer(Simulation.Universe);
@@ -121,7 +116,7 @@ namespace Orbital.Gui
                         Dispatcher.Invoke(() =>
                         {
                             height = (int)RenderSize.Height;
-                            width = height;
+                            width = (int)RenderSize.Width;
                         });
                     }
                     catch (TaskCanceledException)
@@ -135,7 +130,7 @@ namespace Orbital.Gui
                         throw new ArgumentException();
                     }
 
-                    using var bitmap = renderer.Render(width, height, offsetX, offsetY, zoom);
+                    using var bitmap = renderer.Render(width, height, ViewportOffset.X, ViewportOffset.Y, ViewportZoom);
                     try
                     {
                         Dispatcher.Invoke(() =>
@@ -171,6 +166,49 @@ namespace Orbital.Gui
             image.StreamSource = ms;
             image.EndInit();
             return image;
+        }
+
+        private Vector2 ViewportOffset { get; set; } = Vector2.Zero;
+        private double ViewportZoom { get; set; } = 1.0;
+
+        private Vector2 MouseDownVector { get; set; }
+        private Vector2 MouseUpVector { get; set; }
+
+        private void Window_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == System.Windows.Input.MouseButton.Middle &&
+                e.MiddleButton == System.Windows.Input.MouseButtonState.Pressed)
+            {
+                var cursorPos = e.GetPosition(this);
+                MouseDownVector = new Vector2(cursorPos.X, cursorPos.Y);
+            }
+        }
+
+        private void Window_MouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == System.Windows.Input.MouseButton.Middle &&
+                e.MiddleButton == System.Windows.Input.MouseButtonState.Released)
+            {
+                var cursorPos = e.GetPosition(this);
+                MouseUpVector = new Vector2(cursorPos.X, cursorPos.Y);
+                var mouseDiff = MouseUpVector - MouseDownVector;
+
+                if (mouseDiff.Magnitude == 0)
+                {
+                    // Mouse middle double click
+                    ViewportOffset = Vector2.Zero;
+                }
+                else
+                {
+                    ViewportOffset += MouseUpVector - MouseDownVector;
+                }
+            }
+        }
+
+        private void Window_MouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
+        {
+            var zoomDelta = e.Delta > 0 ? 1 : -1;
+            ViewportZoom = Math.Max(1, ViewportZoom + zoomDelta);
         }
     }
 }
