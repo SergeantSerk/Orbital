@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Runtime.Versioning;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Orbital.Render
@@ -20,10 +17,10 @@ namespace Orbital.Render
         }
 
         [SupportedOSPlatform("windows")]
-        public Bitmap Render(int imageWidth, int imageHeight, double offsetX, double offsetY, double zoom)
+        public Bitmap Render(int renderWidth, int renderHeight, double offsetX, double offsetY, double zoom)
         {
             // Scale to viewport properly without stretching the render
-            double scaleRatio = Math.Min(imageWidth, imageHeight);
+            double scaleRatio = Math.Min(renderWidth, renderHeight);
 
             // TO-DO: should viewport be the max magnitude of all the bodies?
             double viewport = Universe.Bodies
@@ -34,7 +31,7 @@ namespace Orbital.Render
             viewport += viewport * 0.01;
             var viewportVector = new Vector3(viewport);
 
-            var bitmap = new Bitmap(imageWidth, imageHeight);
+            var bitmap = new Bitmap(renderWidth, renderHeight);
 
             using (Graphics graphics = Graphics.FromImage(bitmap))
             {
@@ -53,8 +50,8 @@ namespace Orbital.Render
                     bodyViewportVector.Y *= scaleRatio * zoom / 2;
 
                     // Offset
-                    bodyViewportVector.X += (imageWidth + offsetX) / 2;
-                    bodyViewportVector.Y += (imageHeight + offsetY) / 2;
+                    bodyViewportVector.X += (renderWidth + offsetX) / 2;
+                    bodyViewportVector.Y += (renderHeight + offsetY) / 2;
 
                     float renderX = (float)bodyViewportVector.X;
                     float renderY = (float)bodyViewportVector.Y;
