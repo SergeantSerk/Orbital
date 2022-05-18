@@ -206,7 +206,8 @@ namespace Orbital.Gui
 
         private void Window_MouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
         {
-            var zoomDelta = e.Delta > 0 ? 1 : -1;
+            // Speed up zooming scaled
+            var zoomDelta = (ViewportZoom / 4) * (e.Delta > 0 ? 1 : -1);
             ViewportZoom = Math.Max(1, ViewportZoom + zoomDelta);
         }
     }

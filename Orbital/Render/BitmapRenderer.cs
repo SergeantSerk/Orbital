@@ -9,7 +9,18 @@ namespace Orbital.Render
 {
     public class BitmapRenderer
     {
+        public static class Resources
+        {
+            [SupportedOSPlatform("windows")]
+            public static readonly Brush WhiteSolidBrush = new SolidBrush(Color.White);
+
+            [SupportedOSPlatform("windows")]
+            public static readonly Font Arial16Font = new("Arial", 16);
+        }
+
         public Universe Universe { get; }
+
+        public PointF UniverseTimeStringPosition { get; set; } = new PointF(10, 10);
 
         public BitmapRenderer(Universe universe)
         {
@@ -64,6 +75,13 @@ namespace Orbital.Render
                         graphics.FillEllipse(brush, renderX, renderY, 10, 10);
                     }
                 });
+
+                var universeTime = new TimeSpan(0, 0, (int)Universe.T);
+                graphics.DrawString(
+                    $"Universe Time: {universeTime:d\\:hh\\:mm\\:ss}",
+                    Resources.Arial16Font,
+                    Resources.WhiteSolidBrush,
+                    UniverseTimeStringPosition);
             }
 
             return bitmap;
