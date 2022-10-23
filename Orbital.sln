@@ -7,7 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Orbital", "Orbital\Orbital.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Orbital.Cli", "Orbital.Cli\Orbital.Cli.csproj", "{B07BA159-460A-4EA7-8BC4-EA4D661C5F14}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orbital.Gui", "Orbital.Gui\Orbital.Gui.csproj", "{1B27B2EF-4F84-4B63-9A0C-CCF97B489F23}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Orbital.Gui", "Orbital.Gui\Orbital.Gui.csproj", "{1B27B2EF-4F84-4B63-9A0C-CCF97B489F23}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orbital.Benchmark", "Orbital.Benchmark\Orbital.Benchmark.csproj", "{1687AA46-6E21-4421-BC9D-F5B9D4ADCC41}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{1B27B2EF-4F84-4B63-9A0C-CCF97B489F23}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1B27B2EF-4F84-4B63-9A0C-CCF97B489F23}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1B27B2EF-4F84-4B63-9A0C-CCF97B489F23}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1687AA46-6E21-4421-BC9D-F5B9D4ADCC41}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1687AA46-6E21-4421-BC9D-F5B9D4ADCC41}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1687AA46-6E21-4421-BC9D-F5B9D4ADCC41}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1687AA46-6E21-4421-BC9D-F5B9D4ADCC41}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
