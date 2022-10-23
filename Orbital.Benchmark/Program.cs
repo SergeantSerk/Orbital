@@ -5,27 +5,31 @@ namespace Orbital.Benchmark
 {
     public static class Program
     {
-        public static void Main(string[] args)
+        private static int BodyCount { get; } = 3000;
+        private static int LoopCount { get; } = 20;
+
+        public static void Main()
         {
-            int bodyCount = 2500;
-            ConcurrentBag<Body> bodies = InitialiseBodies(bodyCount, out Stopwatch initialiseBodiesStopwatch);
-            Console.WriteLine($"Initialisation took {initialiseBodiesStopwatch.ElapsedMilliseconds / 1000.0} seconds...");
+            Console.Write($"Initialising universe with {BodyCount} bodies...");
+            ConcurrentBag<Body> bodies = InitialiseBodies(BodyCount, out Stopwatch initialiseBodiesStopwatch);
+            Console.WriteLine($"done.");
+            Console.WriteLine($"Took {initialiseBodiesStopwatch.ElapsedMilliseconds / 1000.0} seconds.");
 
             double universeTimeResolution = 1.0;    // 1 second
             var universe = new Universe(bodies, universeTimeResolution);
             var simulation = new Simulation(universe);
 
-            int loopCount = 20;
             var elapsedTicks = new List<long>();
-            for (int i = 0; i < loopCount; ++i)
+            Console.WriteLine($"Running benchmark for {LoopCount} {(LoopCount > 1 ? "loops" : "loop")}...");
+            for (int i = 0; i < LoopCount; ++i)
             {
                 TickSimulation(simulation, out Stopwatch stopwatch);
                 Console.WriteLine("- Universe Tick Duration: {0} ms", stopwatch.ElapsedMilliseconds);
                 elapsedTicks.Add(stopwatch.ElapsedMilliseconds);
             }
 
-            Console.WriteLine($"Results - Min: {elapsedTicks.Min()} Avg: {elapsedTicks.Average()} Max: {elapsedTicks.Max()}");
-            Console.WriteLine(string.Join(' ', elapsedTicks));
+            Console.WriteLine($"Results - Min: {elapsedTicks.Min()} ms | Avg: {elapsedTicks.Average()} ms | Max: {elapsedTicks.Max()} ms");
+            Console.WriteLine("Results (SSV): {0}", string.Join(' ', elapsedTicks));
 
             Console.WriteLine("Press Enter to exit.");
             Console.ReadLine();
