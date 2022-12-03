@@ -21,6 +21,8 @@ namespace Orbital.Render
         public Universe Universe { get; }
 
         public PointF UniverseTimeStringPosition { get; set; } = new PointF(10, 10);
+        private double Zoom { get; set; }
+        public PointF UniverseZoomStringPosition { get; set; } = new PointF(10, 30);
 
         public BitmapRenderer(Universe universe)
         {
@@ -30,6 +32,8 @@ namespace Orbital.Render
         [SupportedOSPlatform("windows")]
         public Bitmap Render(int renderWidth, int renderHeight, double offsetX, double offsetY, double zoom)
         {
+            Zoom = zoom;
+
             // Scale to viewport properly without stretching the render
             double scaleRatio = Math.Min(renderWidth, renderHeight);
 
@@ -82,6 +86,11 @@ namespace Orbital.Render
                     Resources.Arial16Font,
                     Resources.WhiteSolidBrush,
                     UniverseTimeStringPosition);
+                graphics.DrawString(
+                    $"Zoom: {zoom}",
+                    Resources.Arial16Font,
+                    Resources.WhiteSolidBrush,
+                    UniverseZoomStringPosition);
             }
 
             return bitmap;
